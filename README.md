@@ -1,4 +1,4 @@
-# The Test Series with Software Testing Repo
+# The Test Series with Software Testing
 
 ##  Built With
 
