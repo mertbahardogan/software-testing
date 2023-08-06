@@ -3,6 +3,7 @@ package com.software.testing.service.impl;
 import com.software.testing.model.User;
 import com.software.testing.repository.UserRepository;
 import com.software.testing.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -11,13 +12,10 @@ import java.util.Optional;
 import static com.software.testing.core.ErrorConstant.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public String saveUser(User user) {
@@ -34,8 +32,7 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(user.getEmail())) {
             throw new IllegalArgumentException(E_USER_EMAIL_MUST_NOT_BE_NULL);
         }
-        Optional<User> existUser = findByEmail(user.getEmail());
-        if (existUser.isPresent()) {
+        if (findByEmail(user.getEmail()).isPresent()) {
             throw new IllegalArgumentException(E_USER_ALREADY_REGISTERED);
         }
     }

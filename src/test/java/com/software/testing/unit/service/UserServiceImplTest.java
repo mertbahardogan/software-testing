@@ -32,7 +32,7 @@ class UserServiceImplTest {
     private UserRepository userRepository;
 
     private User user;
-    public static final String EXAMPLE_EMAIL = "mert@bahardogan.com";
+    public static final String MOCK_EMAIL = "mert@bahardogan.com";
 
     @BeforeEach
     void setUp() {
@@ -48,10 +48,10 @@ class UserServiceImplTest {
     @ParameterizedTest
     @ValueSource(strings = {"mert@bahardogan.com", "info@gmail.com"})
     @DisplayName("Happy Path: save user use cases")
-    void testSaveUser_givenCorrectRequest_thenReturnUserEmail(String email) {
+    void givenCorrectUser_whenSaveUser_thenReturnUserEmail(String email) {
         // given
         user.setUserName("mertbahardogan").setEmail(email).setPassword("pass");
-        User savedUser = new User().setEmail(EXAMPLE_EMAIL);
+        User savedUser = new User().setEmail(email);
         doReturn(savedUser).when(userRepository).save(any());
 
         // when
@@ -60,12 +60,12 @@ class UserServiceImplTest {
         // then
         verify(userRepository,times(1)).findByEmail(anyString());
         verify(userRepository,times(1)).save(any());
-        assertEquals(EXAMPLE_EMAIL, savedUserEmail);
+        assertEquals(email, savedUserEmail);
     }
 
     @Test
     @DisplayName("Exception Test: user email must not be null case")
-    void testSaveUser_givenCorrectRequest_thenThrowsEmailMustNotNullEx() {
+    void givenNullUserEmail_whenSaveUser_thenThrowsEmailMustNotNullEx() {
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user));
 
@@ -76,10 +76,10 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Exception Test: user is already registered case")
-    void testSaveUser_givenCorrectRequest_thenThrowsUserAlreadyRegisteredEx() {
+    void givenRegisteredUser_whenSaveUser_thenThrowsUserAlreadyRegisteredEx() {
         // given
-        user.setEmail(EXAMPLE_EMAIL);
-        Optional<User> savedUser = Optional.of(new User().setEmail(EXAMPLE_EMAIL));
+        user.setEmail(MOCK_EMAIL);
+        Optional<User> savedUser = Optional.of(new User().setEmail(MOCK_EMAIL));
         doReturn(savedUser).when(userRepository).findByEmail(anyString());
 
         // when
@@ -92,9 +92,9 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Exception Test: catch case")
-    void testSaveUser_givenCorrectRequest_thenThrowsGeneralSystemEx() {
+    void givenIncorrectDependencies_whenSaveUser_thenThrowsGeneralSystemEx() {
         // given
-        user.setEmail(EXAMPLE_EMAIL);
+        user.setEmail(MOCK_EMAIL);
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user));
@@ -102,5 +102,20 @@ class UserServiceImplTest {
         // then
         assertNotNull(exception);
         assertEquals(E_GENERAL_SYSTEM, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Happy Path: find user by email")
+    void givenCorrectUser_whenFindByEmail_thenReturnUserEmail() {
+        // given
+        Optional<User> savedUser = Optional.of(new User().setEmail(MOCK_EMAIL));
+        doReturn(savedUser).when(userRepository).findByEmail(anyString());
+
+        // when
+        Optional<User> user = userService.findByEmail(MOCK_EMAIL);
+
+        // then
+        verify(userRepository,times(1)).findByEmail(anyString());
+        assertEquals(savedUser, user);
     }
 }
