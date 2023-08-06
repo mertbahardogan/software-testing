@@ -1,4 +1,4 @@
-# Hey, you can reach all information here about my project & articles.
+# The Test Series with Software Testing Repo
 
 ##  Built With
 
