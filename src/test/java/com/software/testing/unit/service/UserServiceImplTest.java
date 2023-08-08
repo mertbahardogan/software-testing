@@ -37,12 +37,12 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        System.out.println("init");
+        System.out.println("setUp");
     }
 
     @AfterEach
-    void teardown() {
-        System.out.println("teardown");
+    void tearDown() {
+        System.out.println("tearDown");
     }
 
     @ParameterizedTest
