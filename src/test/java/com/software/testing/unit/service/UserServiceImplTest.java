@@ -1,8 +1,22 @@
 package com.software.testing.unit.service;
 
+import static com.software.testing.core.constant.ErrorConstant.E_GENERAL_SYSTEM;
+import static com.software.testing.core.constant.ErrorConstant.E_USER_ALREADY_REGISTERED;
+import static com.software.testing.core.constant.ErrorConstant.E_USER_EMAIL_MUST_NOT_BE_NULL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import com.software.testing.core.exception.ControllerException;
 import com.software.testing.model.User;
 import com.software.testing.repository.UserRepository;
 import com.software.testing.service.impl.UserServiceImpl;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,14 +27,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static com.software.testing.core.ErrorConstant.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -48,7 +54,7 @@ class UserServiceImplTest {
     @ParameterizedTest
     @ValueSource(strings = {"mert@bahardogan.com", "info@gmail.com"})
     @DisplayName("Happy Path: save user use cases")
-    void givenCorrectUser_whenSaveUser_thenReturnUserEmail(String email) {
+    void givenCorrectUser_whenSaveUser_thenReturnUserEmail(String email) throws ControllerException {
         // given
         user.setUserName("mertbahardogan").setEmail(email).setPassword("pass");
         User savedUser = new User().setEmail(email);
@@ -67,11 +73,11 @@ class UserServiceImplTest {
     @DisplayName("Exception Test: user email must not be null case")
     void givenNullUserEmail_whenSaveUser_thenThrowsEmailMustNotNullEx() {
         // when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user));
+        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
 
         // then
         assertNotNull(exception);
-        assertEquals(E_USER_EMAIL_MUST_NOT_BE_NULL, exception.getMessage());
+        assertEquals(E_USER_EMAIL_MUST_NOT_BE_NULL, exception.getErrorMessage());
     }
 
     @Test
@@ -83,11 +89,11 @@ class UserServiceImplTest {
         doReturn(savedUser).when(userRepository).findByEmail(anyString());
 
         // when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user));
+        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
 
         // then
         assertNotNull(exception);
-        assertEquals(E_USER_ALREADY_REGISTERED, exception.getMessage());
+        assertEquals(E_USER_ALREADY_REGISTERED, exception.getErrorMessage());
     }
 
     @Test
@@ -97,11 +103,11 @@ class UserServiceImplTest {
         user.setEmail(MOCK_EMAIL);
 
         // when
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user));
+        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
 
         // then
         assertNotNull(exception);
-        assertEquals(E_GENERAL_SYSTEM, exception.getMessage());
+        assertEquals(E_GENERAL_SYSTEM, exception.getErrorMessage());
     }
 
     @Test

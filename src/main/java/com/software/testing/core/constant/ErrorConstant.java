@@ -1,4 +1,4 @@
-package com.software.testing.core;
+package com.software.testing.core.constant;
 
 import lombok.experimental.UtilityClass;
 
