@@ -1,5 +1,6 @@
 package com.software.testing.controller;
 
+import com.software.testing.core.exception.ControllerException;
 import com.software.testing.model.User;
 import com.software.testing.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<String> saveUser(@RequestBody User user) {
+    public ResponseEntity<String> saveUser(@RequestBody User user) throws ControllerException {
         return new ResponseEntity<>(userService.saveUser(user), HttpStatus.CREATED);
     }
 }

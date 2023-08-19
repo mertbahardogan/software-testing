@@ -7,8 +7,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.software.testing.controller.UserController;
+import com.software.testing.core.exception.ControllerException;
 import com.software.testing.model.User;
 import com.software.testing.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,11 +31,19 @@ class UserControllerTest {
 
     public static final String MOCK_EMAIL = "mert@bahardogan.com";
 
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        System.out.println("setUp");
+    }
+
     @Test
     @DisplayName("Happy Path: save user use case")
-    void givenCorrectUser_whenSaveUser_thenReturnUserEmail() {
+    void givenCorrectUser_whenSaveUser_thenReturnUserEmail() throws ControllerException {
         // given
-        User user = new User().setUserName("mertbahardogan").setEmail(MOCK_EMAIL).setPassword("pass");
+        user = new User().setUserName("mertbahardogan").setEmail(MOCK_EMAIL).setPassword("pass");
         doReturn(MOCK_EMAIL).when(userService).saveUser(any());
 
         // when
