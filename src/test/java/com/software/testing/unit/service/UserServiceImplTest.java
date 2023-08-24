@@ -1,6 +1,5 @@
 package com.software.testing.unit.service;
 
-import static com.software.testing.core.constant.ErrorConstant.E_GENERAL_SYSTEM;
 import static com.software.testing.core.constant.ErrorConstant.E_USER_ALREADY_REGISTERED;
 import static com.software.testing.core.constant.ErrorConstant.E_USER_EMAIL_MUST_NOT_BE_NULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +12,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.software.testing.core.exception.ControllerException;
+import com.software.testing.dto.UserDTO;
+import com.software.testing.dto.converter.UserConverter;
 import com.software.testing.model.User;
 import com.software.testing.repository.UserRepository;
 import com.software.testing.service.impl.UserServiceImpl;
@@ -33,16 +34,18 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userService;
-
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserConverter userConverter;
 
-    private User user;
+
+    private UserDTO userDTO;
     public static final String MOCK_EMAIL = "mert@bahardogan.com";
 
     @BeforeEach
     void setUp() {
-        user = new User();
+        userDTO = new UserDTO();
         System.out.println("setUp");
     }
 
@@ -56,24 +59,25 @@ class UserServiceImplTest {
     @DisplayName("Happy Path: save user use cases")
     void givenCorrectUser_whenSaveUser_thenReturnUserEmail(String email) throws ControllerException {
         // given
-        user.setUserName("mertbahardogan").setEmail(email).setPassword("pass");
+        userDTO.setUserName("mertbahardogan").setEmail(email).setPassword("pass");
         User savedUser = new User().setEmail(email);
         doReturn(savedUser).when(userRepository).save(any());
+        doReturn(userDTO).when(userConverter).convertToUserDTO(any());
 
         // when
-        String savedUserEmail = userService.saveUser(user);
+        UserDTO saveUser = userService.saveUser(userDTO);
 
         // then
-        verify(userRepository,times(1)).findByEmail(anyString());
-        verify(userRepository,times(1)).save(any());
-        assertEquals(email, savedUserEmail);
+        verify(userRepository, times(1)).findByEmail(anyString());
+        verify(userRepository, times(1)).save(any());
+        assertEquals(email, saveUser.getEmail());
     }
 
     @Test
     @DisplayName("Exception Test: user email must not be null case")
     void givenNullUserEmail_whenSaveUser_thenThrowsEmailMustNotNullEx() {
         // when
-        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
+        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(userDTO));
 
         // then
         assertNotNull(exception);
@@ -84,30 +88,16 @@ class UserServiceImplTest {
     @DisplayName("Exception Test: user is already registered case")
     void givenRegisteredUser_whenSaveUser_thenThrowsUserAlreadyRegisteredEx() {
         // given
-        user.setEmail(MOCK_EMAIL);
+        userDTO.setEmail(MOCK_EMAIL);
         Optional<User> savedUser = Optional.of(new User().setEmail(MOCK_EMAIL));
         doReturn(savedUser).when(userRepository).findByEmail(anyString());
 
         // when
-        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
+        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(userDTO));
 
         // then
         assertNotNull(exception);
         assertEquals(E_USER_ALREADY_REGISTERED, exception.getErrorMessage());
-    }
-
-    @Test
-    @DisplayName("Exception Test: catch case")
-    void givenIncorrectDependencies_whenSaveUser_thenThrowsGeneralSystemEx() {
-        // given
-        user.setEmail(MOCK_EMAIL);
-
-        // when
-        ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(user));
-
-        // then
-        assertNotNull(exception);
-        assertEquals(E_GENERAL_SYSTEM, exception.getErrorMessage());
     }
 
     @Test
@@ -121,7 +111,7 @@ class UserServiceImplTest {
         Optional<User> user = userService.findByEmail(MOCK_EMAIL);
 
         // then
-        verify(userRepository,times(1)).findByEmail(anyString());
+        verify(userRepository, times(1)).findByEmail(anyString());
         assertEquals(savedUser, user);
     }
 }
