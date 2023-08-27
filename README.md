@@ -1,4 +1,4 @@
-# The Test Series with Software Testing
+# The Test Series with Spring Boot
 
 ##  Built With
 
@@ -8,7 +8,6 @@
 4. JUnit 5
 5. Mockito
 6. PostgreSQL / H2 Database
-
 
 
 ## THE TEST SERIES ON MEDIUM:

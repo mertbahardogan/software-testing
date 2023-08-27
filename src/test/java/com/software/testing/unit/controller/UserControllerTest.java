@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import com.software.testing.controller.UserController;
 import com.software.testing.core.exception.ControllerException;
-import com.software.testing.model.User;
+import com.software.testing.dto.UserDTO;
 import com.software.testing.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,29 +25,25 @@ class UserControllerTest {
 
     @InjectMocks
     private UserController userController;
-
     @Mock
     private UserService userService;
-
     public static final String MOCK_EMAIL = "mert@bahardogan.com";
-
-    private User user;
+    private UserDTO userDTO;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        System.out.println("setUp");
+        userDTO = new UserDTO();
     }
 
     @Test
     @DisplayName("Happy Path: save user use case")
     void givenCorrectUser_whenSaveUser_thenReturnUserEmail() throws ControllerException {
         // given
-        user = new User().setUserName("mertbahardogan").setEmail(MOCK_EMAIL).setPassword("pass");
-        doReturn(MOCK_EMAIL).when(userService).saveUser(any());
+        userDTO = new UserDTO().setUserName("mertbahardogan").setEmail(MOCK_EMAIL).setPassword("pass");
+        doReturn(new UserDTO().setEmail(MOCK_EMAIL)).when(userService).saveUser(any());
 
         // when
-        ResponseEntity<String> savedUserEmail = userController.saveUser(user);
+        ResponseEntity<UserDTO> savedUserEmail = userController.saveUser(userDTO);
 
         // then
         verify(userService, times(1)).saveUser(any());

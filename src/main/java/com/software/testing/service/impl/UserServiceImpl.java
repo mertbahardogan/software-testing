@@ -5,6 +5,9 @@ import static com.software.testing.core.constant.ErrorConstant.E_USER_ALREADY_RE
 import static com.software.testing.core.constant.ErrorConstant.E_USER_EMAIL_MUST_NOT_BE_NULL;
 
 import com.software.testing.core.exception.ControllerException;
+import com.software.testing.core.util.Validate;
+import com.software.testing.dto.UserDTO;
+import com.software.testing.dto.converter.UserConverter;
 import com.software.testing.model.User;
 import com.software.testing.repository.UserRepository;
 import com.software.testing.service.UserService;
@@ -18,25 +21,22 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserConverter userConverter;
 
     @Override
-    public String saveUser(User user) throws ControllerException {
-        validateUser(user);
+    public UserDTO saveUser(UserDTO userDTO) throws ControllerException {
+        validateUserDTO(userDTO);
+        User user = userConverter.convertToUser(userDTO);
         try {
-            User savedUser = userRepository.save(user);
-            return savedUser.getEmail();
+            return userConverter.convertToUserDTO(userRepository.save(user));
         } catch (Exception exception) {
             throw new ControllerException(E_GENERAL_SYSTEM);
         }
     }
 
-    private void validateUser(User user) throws ControllerException {
-        if (Objects.isNull(user.getEmail())) {
-            throw new ControllerException(E_USER_EMAIL_MUST_NOT_BE_NULL);
-        }
-        if (findByEmail(user.getEmail()).isPresent()) {
-            throw new ControllerException(E_USER_ALREADY_REGISTERED);
-        }
+    private void validateUserDTO(UserDTO userDTO) throws ControllerException {
+        Validate.stateNot(Objects.isNull(userDTO.getEmail()), E_USER_EMAIL_MUST_NOT_BE_NULL);
+        Validate.stateNot(findByEmail(userDTO.getEmail()).isPresent(), E_USER_ALREADY_REGISTERED);
     }
 
     @Override

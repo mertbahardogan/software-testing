@@ -1,6 +1,8 @@
 package com.software.testing.model;
 
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -10,7 +12,10 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class User {
+public class User implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 5088456327972897342L;
 
     @Id
     @Column(name = "id")
