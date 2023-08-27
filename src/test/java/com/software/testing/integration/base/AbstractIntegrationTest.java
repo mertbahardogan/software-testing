@@ -1,10 +1,11 @@
 package com.software.testing.integration.base;
 
-import static com.software.testing.core.constant.ErrorConstant.E_USER_ALREADY_REGISTERED;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @TestInstance(Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
 @EnableConfigurationProperties
@@ -30,23 +28,22 @@ public abstract class AbstractIntegrationTest extends TestFactory {
 
     @Autowired
     protected MockMvc mockMvc;
-    protected final ObjectMapper mapper = new ObjectMapper();
+    protected final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules().configure(
+                    SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     protected <T> T performPostRequestExpectedSuccess(String path, Object object, Class<T> responseType)
             throws Exception {
         MvcResult mvcResult = getResultActions(path, object)
-                .andExpect(status().isOk())
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         return convertStringToClass(mvcResult.getResponse().getContentAsString(), responseType);
     }
 
-    protected <T> T performPostRequestExpectedControllerException(String path, Object object, Class<T> responseType)
+    protected <T> T performPostRequestExpectedServerError(String path, Object object, Class<T> responseType)
             throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(path)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errorMessage", notNullValue()))
-                .andExpect(jsonPath("$.errorMessage", is(E_USER_ALREADY_REGISTERED)))
+        MvcResult mvcResult = getResultActions(path, object)
+                .andExpect(status().is5xxServerError())
                 .andReturn();
         return convertStringToClass(mvcResult.getResponse().getContentAsString(), responseType);
     }

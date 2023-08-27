@@ -45,8 +45,8 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        userDTO = new UserDTO();
         System.out.println("setUp");
+        userDTO = new UserDTO();
     }
 
     @AfterEach
@@ -56,8 +56,8 @@ class UserServiceImplTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"mert@bahardogan.com", "info@gmail.com"})
-    @DisplayName("Happy Path: save user use cases")
-    void givenCorrectUser_whenSaveUser_thenReturnUserEmail(String email) throws ControllerException {
+    @DisplayName("Happy Path Test: save user use cases")
+    void givenCorrectUserDTO_whenSaveUser_thenReturnUserDTO(String email) throws ControllerException {
         // given
         userDTO.setUserName("mertbahardogan").setEmail(email).setPassword("pass");
         User savedUser = new User().setEmail(email);
@@ -75,7 +75,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Exception Test: user email must not be null case")
-    void givenNullUserEmail_whenSaveUser_thenThrowsEmailMustNotNullEx() {
+    void givenMissingUserDTO_whenSaveUser_thenThrowEmailMustNotNullEx() {
         // when
         ControllerException exception = assertThrows(ControllerException.class, () -> userService.saveUser(userDTO));
 
@@ -86,7 +86,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("Exception Test: user is already registered case")
-    void givenRegisteredUser_whenSaveUser_thenThrowsUserAlreadyRegisteredEx() {
+    void givenRegisteredUserDTO_whenSaveUser_thenThrowUserAlreadyRegisteredEx() {
         // given
         userDTO.setEmail(MOCK_EMAIL);
         Optional<User> savedUser = Optional.of(new User().setEmail(MOCK_EMAIL));
@@ -101,8 +101,8 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("Happy Path: find user by email")
-    void givenCorrectUser_whenFindByEmail_thenReturnUserEmail() {
+    @DisplayName("Happy Path Test: find user by email")
+    void givenCorrectUserDTO_whenFindByEmail_thenReturnUserEmail() {
         // given
         Optional<User> savedUser = Optional.of(new User().setEmail(MOCK_EMAIL));
         doReturn(savedUser).when(userRepository).findByEmail(anyString());
