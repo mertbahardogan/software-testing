@@ -1,15 +1,19 @@
 package com.software.testing.core.util;
 
-import com.software.testing.core.exception.ControllerException;
-import lombok.experimental.UtilityClass;
+import static com.software.testing.core.constant.ErrorConstant.E_VALIDATE_UTILITY_CLASS;
 
-@UtilityClass
+import com.software.testing.core.exception.ControllerException;
+
 public class Validate {
+
+    private Validate() throws ControllerException {
+        throw new ControllerException(E_VALIDATE_UTILITY_CLASS);
+    }
 
     /**
      * The expression must be TRUE, otherwise throws {@link ControllerException}
      */
-    public void state(boolean isExpressionTrue, String errorMessage)
+    public static void state(boolean isExpressionTrue, String errorMessage)
             throws ControllerException {
         if (!isExpressionTrue) {
             throw new ControllerException(errorMessage);
@@ -19,11 +23,10 @@ public class Validate {
     /**
      * The expression must be FALSE, otherwise throws {@link ControllerException}
      */
-    public void stateNot(boolean isExpressionFalse, String errorMessage)
+    public static void stateNot(boolean isExpressionFalse, String errorMessage)
             throws ControllerException {
         if (isExpressionFalse) {
             throw new ControllerException(errorMessage);
         }
     }
-
 }
