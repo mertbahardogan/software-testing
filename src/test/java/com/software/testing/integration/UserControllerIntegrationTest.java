@@ -24,7 +24,6 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     @PostConstruct
     public void init() {
-        System.out.println("init");
         userDTO = generateUserDTO();
     }
 
@@ -71,5 +70,4 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
         assertNotNull(responseWithException);
         assertEquals(E_USER_ALREADY_REGISTERED, responseWithException.getDetail());
     }
-
 }

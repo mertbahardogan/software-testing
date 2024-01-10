@@ -1,7 +1,5 @@
 package com.software.testing.integration.base;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +15,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
@@ -32,20 +33,22 @@ public abstract class AbstractIntegrationTest extends TestFactory {
                     SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    protected <T> T performPostRequestExpectedSuccess(String path, Object object, Class<T> responseType)
+    protected <T> T performPostRequest(String path, Object object, Class<T> responseType, ResultMatcher expectedStatus)
             throws Exception {
         MvcResult mvcResult = getResultActions(path, object)
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(expectedStatus)
                 .andReturn();
         return convertStringToClass(mvcResult.getResponse().getContentAsString(), responseType);
     }
 
+    protected <T> T performPostRequestExpectedSuccess(String path, Object object, Class<T> responseType)
+            throws Exception {
+        return performPostRequest(path, object, responseType, status().is2xxSuccessful());
+    }
+
     protected <T> T performPostRequestExpectedServerError(String path, Object object, Class<T> responseType)
             throws Exception {
-        MvcResult mvcResult = getResultActions(path, object)
-                .andExpect(status().is5xxServerError())
-                .andReturn();
-        return convertStringToClass(mvcResult.getResponse().getContentAsString(), responseType);
+        return performPostRequest(path, object, responseType, status().is5xxServerError());
     }
 
     private ResultActions getResultActions(String path, Object object) throws Exception {
@@ -54,12 +57,7 @@ public abstract class AbstractIntegrationTest extends TestFactory {
                 .content(mapper.writeValueAsString(object)));
     }
 
-    private <T> T convertStringToClass(String jsonString, Class<T> responseType) {
-        try {
-            return mapper.readValue(jsonString, responseType);
-        } catch (JsonProcessingException e) {
-            System.out.println("Error has occurred while converting string to the class: " + e);
-        }
-        return null;
+    private <T> T convertStringToClass(String jsonString, Class<T> responseType) throws JsonProcessingException {
+        return mapper.readValue(jsonString, responseType);
     }
 }
