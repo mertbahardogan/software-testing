@@ -13,7 +13,7 @@
 ## THE TEST SERIES ON MEDIUM:
 1. [The Test Series-Introduction](https://medium.com/@mbahardogan/the-test-series-introduction-c4fee770442c)
 2. [The Unit Test with Spring Boot](https://mbahardogan.medium.com/unit-test-62e648255aac)
-3. The Integration Test with Spring Boot (Coming Soon!)
+3. [The Integration Test with Spring Boot](https://medium.com/@mbahardogan/the-integration-test-with-spring-boot-4893d8151278)
 
 
 ## About the Tests
